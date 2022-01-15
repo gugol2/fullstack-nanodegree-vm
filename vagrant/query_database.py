@@ -22,4 +22,5 @@ session = DBSession()
 # Let's do a query
 allRestaurants = session.query(Restaurant).all()
 
-print('allRestaurants', allRestaurants)
+for restaurant in allRestaurants:
+    print restaurant.name
