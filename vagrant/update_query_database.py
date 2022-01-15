@@ -20,16 +20,11 @@ session = DBSession()
 
 
 # Let's do a query
-allRestaurants = session.query(Restaurant).all()
+UrbanVeggieBurger = session.query(MenuItem).filter_by(id = 8).one()
+print(UrbanVeggieBurger.price)
 
-for restaurant in allRestaurants:
-    print restaurant.name
+UrbanVeggieBurger.price = '$2.99'
+session.add(UrbanVeggieBurger)
+print('New price', UrbanVeggieBurger.price)
+session.commit()
 
-
-veggieBurgers = session.query(MenuItem).filter_by(name = 'Veggie Burger')
-
-for veggieBurger in veggieBurgers:
-    print veggieBurger.id
-    print veggieBurger.price
-    print veggieBurger.restaurant.name
-    print '\n'
