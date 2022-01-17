@@ -10,9 +10,7 @@ class webServerHandler(BaseHTTPRequestHandler):
         try:
             if self.path.endswith("/restaurants"):
                 allRestautants = selectAllRestaurants()
-                self.send_response(200)
-                self.send_header('Content-type', 'text/html')
-                self.end_headers()
+
                 output = ""
                 output += "<html><body>"
                 output +="<a href='/restaurants/new'>Make a New Restaurant</a>"
@@ -28,6 +26,10 @@ class webServerHandler(BaseHTTPRequestHandler):
                     output += '</br></br></br>'
 
                 output += "</body></html>"
+
+                self.send_response(200)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
                 self.wfile.write(output)
                 print output
                 return
@@ -66,42 +68,39 @@ class webServerHandler(BaseHTTPRequestHandler):
 
     def do_POST(self):
 
-        if self.path.endswith("/restaurants/new"):
             try:
+                if self.path.endswith("/restaurants/new"):
+                    ctype, pdict = cgi.parse_header(
+                        self.headers.getheader('content-type'))
+                    if ctype == 'multipart/form-data':
+                        fields = cgi.parse_multipart(self.rfile, pdict)
+                        messagecontent = fields.get('restaurantName')
+
+                        insertNewRestaurant(messagecontent[0])
+                    
+                        self.send_response(301)
+                        self.send_header('Content-type', 'text/html')
+                        self.send_header('Location', '/restaurants')
+                        self.end_headers()
+                
+                self.send_response(301)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
                 ctype, pdict = cgi.parse_header(
                     self.headers.getheader('content-type'))
                 if ctype == 'multipart/form-data':
                     fields = cgi.parse_multipart(self.rfile, pdict)
-                    messagecontent = fields.get('restaurantName')
-
-                    insertNewRestaurant(messagecontent[0])
-                
-                self.send_response(301)
-                self.send_header('Content-type', 'text/html')
-                self.send_header('Location', '/restaurants')
-                self.end_headers()
+                    messagecontent = fields.get('message')
+                output = ""
+                output += "<html><body>"
+                output += " <h2> Okay, how about this: </h2>"
+                output += "<h1> %s </h1>" % messagecontent[0]
+                output += '''<form method='POST' enctype='multipart/form-data' action='/hello'><h2>What would you like me to say?</h2><input name="message" type="text" ><input type="submit" value="Submit"> </form>'''
+                output += "</body></html>"
+                self.wfile.write(output)
+                print output
             except:
                 pass
-
-        try:
-            self.send_response(301)
-            self.send_header('Content-type', 'text/html')
-            self.end_headers()
-            ctype, pdict = cgi.parse_header(
-                self.headers.getheader('content-type'))
-            if ctype == 'multipart/form-data':
-                fields = cgi.parse_multipart(self.rfile, pdict)
-                messagecontent = fields.get('message')
-            output = ""
-            output += "<html><body>"
-            output += " <h2> Okay, how about this: </h2>"
-            output += "<h1> %s </h1>" % messagecontent[0]
-            output += '''<form method='POST' enctype='multipart/form-data' action='/hello'><h2>What would you like me to say?</h2><input name="message" type="text" ><input type="submit" value="Submit"> </form>'''
-            output += "</body></html>"
-            self.wfile.write(output)
-            print output
-        except:
-            pass
 
 
 def main():
