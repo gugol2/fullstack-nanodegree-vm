@@ -2,7 +2,7 @@ from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 import cgi
 
 from select_all_restaurants import selectAllRestaurants
-
+from insert_new_restaurant import insertNewRestaurant
 
 class webServerHandler(BaseHTTPRequestHandler):
 
@@ -32,6 +32,22 @@ class webServerHandler(BaseHTTPRequestHandler):
                 print output
                 return
 
+            if self.path.endswith("/restaurants/new"):
+                self.send_response(200)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+                output = ""
+                output += "<html><body>"
+                output += "<h1>Make a New Restaurant</h1>"
+                output += '''<form method='POST' enctype='multipart/form-data' action='/restaurants/new'>
+                    <input name="restaurantName" type="text" placeholder = 'New Restaurant Name' >
+                    <input type="submit" value="Create">
+                </form>'''
+                output += "</body></html>"
+                self.wfile.write(output)
+                print output
+                return
+
             if self.path.endswith("/hola"):
                 self.send_response(200)
                 self.send_header('Content-type', 'text/html')
@@ -49,6 +65,24 @@ class webServerHandler(BaseHTTPRequestHandler):
             self.send_error(404, 'File Not Found: %s' % self.path)
 
     def do_POST(self):
+
+        if self.path.endswith("/restaurants/new"):
+            try:
+                ctype, pdict = cgi.parse_header(
+                    self.headers.getheader('content-type'))
+                if ctype == 'multipart/form-data':
+                    fields = cgi.parse_multipart(self.rfile, pdict)
+                    messagecontent = fields.get('restaurantName')
+
+                    insertNewRestaurant(messagecontent[0])
+                
+                self.send_response(301)
+                self.send_header('Content-type', 'text/html')
+                self.send_header('Location', '/restaurants')
+                self.end_headers()
+            except:
+                pass
+
         try:
             self.send_response(301)
             self.send_header('Content-type', 'text/html')
