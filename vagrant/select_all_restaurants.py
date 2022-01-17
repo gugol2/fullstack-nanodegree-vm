@@ -1,9 +1,8 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from database_setup import Restaurant, Base
 
-from database_setup import Restaurant, Base, MenuItem
-
-def selectAllRestaurants ():
+def createSessionAndConnectToDB ():
     engine = create_engine('sqlite:///restaurantmenu.db')
     # Bind the engine to the metadata of the Base class so that the
     # declaratives can be accessed through a DBSession instance
@@ -18,7 +17,10 @@ def selectAllRestaurants ():
     # revert all of them back to the last commit by calling
     # session.rollback()
     session = DBSession()
+    return session
 
+def selectAllRestaurants ():
+    session = createSessionAndConnectToDB()
 
     # Let's do a query
     allRestaurants = session.query(Restaurant).all()

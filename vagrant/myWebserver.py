@@ -9,16 +9,18 @@ class webServerHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         try:
             if self.path.endswith("/restaurants"):
+                allRestautants = selectAllRestaurants()
                 self.send_response(200)
                 self.send_header('Content-type', 'text/html')
                 self.end_headers()
-                allRestautants = selectAllRestaurants()
-                print('allRestautants', allRestautants)
                 output = ""
-                output += "<html><body><ul>"
+                output += "<html><body>"
+
                 for restaurant in allRestautants:
-                    output += "<li> %s </li>" % restaurant.name
-                output += "</ul></body></html>"
+                    output += restaurant.name
+                    output += '</br>'
+
+                output += "</body></html>"
                 self.wfile.write(output)
                 print output
                 return
