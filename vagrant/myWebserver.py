@@ -19,11 +19,11 @@ class webServerHandler(BaseHTTPRequestHandler):
                 for restaurant in allRestautants:
                     output += restaurant.name
                     output += '</br>'
+                    # Objective 2 -- Add Edit and Delete Links
                     output +="<a href='#'>Edit</a>"
                     output += '</br>'
                     output +="<a href='#'>Delete</a>"
-                    output += '</br>'
-                    output += '</br>'
+                    output += '</br></br></br>'
 
                 output += "</body></html>"
                 self.wfile.write(output)
