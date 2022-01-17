@@ -19,11 +19,11 @@ class WebServerHandler(BaseHTTPRequestHandler):
             self.send_header('Content-type', 'text/html')
             self.end_headers()
             message = ""
-            message += "<html><body> &#161 Hola ! </body></html>"
+            message += "<html><body> &#161 Hola ! <a href='/hello'>Back to Hello</a></body></html>"
             self.wfile.write(message)
             print message
             return
-            
+
         else:
             self.send_error(404, 'File Not Found: %s' % self.path)
 
