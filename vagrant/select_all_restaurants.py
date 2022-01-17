@@ -25,7 +25,7 @@ def selectAllRestaurants ():
 
     restaurantList = []
     for restaurant in allRestaurants:
-        restaurantList.append(restaurant.name)
+        restaurantList.append(restaurant)
 
     return restaurantList
 

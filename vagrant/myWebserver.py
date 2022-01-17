@@ -12,12 +12,12 @@ class webServerHandler(BaseHTTPRequestHandler):
                 self.send_response(200)
                 self.send_header('Content-type', 'text/html')
                 self.end_headers()
-                allRestautantNames = selectAllRestaurants()
-                print('allRestautantNames', allRestautantNames)
+                allRestautants = selectAllRestaurants()
+                print('allRestautants', allRestautants)
                 output = ""
                 output += "<html><body><ul>"
-                for restaurantName in allRestautantNames:
-                    output += "<li> %s </li>" % restaurantName
+                for restaurant in allRestautants:
+                    output += "<li> %s </li>" % restaurant.name
                 output += "</ul></body></html>"
                 self.wfile.write(output)
                 print output
