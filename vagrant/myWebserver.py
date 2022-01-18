@@ -3,6 +3,7 @@ import cgi
 
 from select_all_restaurants import selectAllRestaurants
 from insert_new_restaurant import insertNewRestaurant
+from query_restaurant_by_id import queryRestaurantById, updateRestaurantById
 
 class webServerHandler(BaseHTTPRequestHandler):
 
@@ -20,7 +21,7 @@ class webServerHandler(BaseHTTPRequestHandler):
                     output += restaurant.name
                     output += '</br>'
                     # Objective 2 -- Add Edit and Delete Links
-                    output +="<a href='#'>Edit</a>"
+                    output +="<a href='/restaurants/%s/edit'>Edit</a>" % restaurant.id
                     output += '</br>'
                     output +="<a href='#'>Delete</a>"
                     output += '</br></br></br>'
@@ -31,7 +32,7 @@ class webServerHandler(BaseHTTPRequestHandler):
                 self.send_header('Content-type', 'text/html')
                 self.end_headers()
                 self.wfile.write(output)
-                print output
+                # print output
                 return
 
             if self.path.endswith("/restaurants/new"):
@@ -47,8 +48,27 @@ class webServerHandler(BaseHTTPRequestHandler):
                 </form>'''
                 output += "</body></html>"
                 self.wfile.write(output)
-                print output
+                # print output
                 return
+
+            if self.path.endswith("/edit"):
+                restaurantIDPath = self.path.split("/")[2]
+                restaurantToEdit = queryRestaurantById(restaurantIDPath)
+                self.send_response(200)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+                output = "<html><body>"
+                output += "<h1>"
+                output += restaurantToEdit.name
+                output += "</h1>"
+                output += "<form method='POST' enctype='multipart/form-data' action = '/restaurants/%s/edit' >" % restaurantIDPath
+                output += "<input name ='restaurantName' type='text' placeholder = '%s' >" % restaurantToEdit.name
+                output += "<input type ='submit' value = 'Rename'>"
+                output += "</form>"
+                output += "</body></html>"
+                self.wfile.write(output)
+                print output
+                # return
 
             if self.path.endswith("/hola"):
                 self.send_response(200)
@@ -82,6 +102,27 @@ class webServerHandler(BaseHTTPRequestHandler):
                         self.send_header('Content-type', 'text/html')
                         self.send_header('Location', '/restaurants')
                         self.end_headers()
+
+                if self.path.endswith("/edit"):
+                    print 'llego aqui!'
+                    ctype, pdict = cgi.parse_header(
+                        self.headers.getheader('content-type'))
+                    if ctype == 'multipart/form-data':
+                        fields = cgi.parse_multipart(self.rfile, pdict)
+                        messagecontent = fields.get('restaurantName')
+                        
+                        print ('messagecontent', messagecontent)
+
+                        restaurantIDPath = self.path.split("/")[2]
+                        print ('restaurantIDPath', restaurantIDPath)
+
+
+                        updateRestaurantById(restaurantIDPath, messagecontent[0])
+                    
+                        self.send_response(301)
+                        self.send_header('Content-type', 'text/html')
+                        self.send_header('Location', '/restaurants')
+                        self.end_headers()
                 
                 self.send_response(301)
                 self.send_header('Content-type', 'text/html')
@@ -106,7 +147,7 @@ class webServerHandler(BaseHTTPRequestHandler):
 def main():
     try:
         port = 8080
-        server = HTTPServer(('', port), webServerHandler)
+        server = HTTPServer(('localhost', port), webServerHandler)
         print "Web Server running on port %s" % port
         server.serve_forever()
     except KeyboardInterrupt:
