@@ -1,12 +1,6 @@
-
-
 from database_setup import Restaurant
-from createSessionAndConnectToDB import createSessionAndConnectToDB
 
-
-def selectAllRestaurants ():
-    session = createSessionAndConnectToDB()
-
+def selectAllRestaurants (session):
     # Let's do a query
     allRestaurants = session.query(Restaurant).all()
 

@@ -1,10 +1,6 @@
 from database_setup import Restaurant
-from createSessionAndConnectToDB import createSessionAndConnectToDB
 
-
-def insertNewRestaurant (restaurantName):
-    session = createSessionAndConnectToDB()
-
+def insertNewRestaurant (session, restaurantName):
     newRestaurant = Restaurant(name=restaurantName)
 
     session.add(newRestaurant)

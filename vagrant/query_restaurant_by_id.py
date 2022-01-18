@@ -1,26 +1,12 @@
 from database_setup import Restaurant
-from createSessionAndConnectToDB import createSessionAndConnectToDB
 
-def createSession (): 
-    session = createSessionAndConnectToDB()
-    return session
+def queryRestaurantById (session, restaurantId):
+    restaurantQueried = session.query(Restaurant).filter_by(id = restaurantId).one()
 
-def queryRestaurantById (restaurantId):
-    session = createSession()
+    return restaurantQueried
 
-    restaurantToEdit = session.query(Restaurant).filter_by(id = restaurantId).one()
-
-    return restaurantToEdit
-
-def updateRestaurantById (restaurantId, newRestaurantName):
-    print('restaurantId', restaurantId)
-    print('newRestaurantName', newRestaurantName)
-
-    session = createSession()
-
-    restaurantToEdit = queryRestaurantById(restaurantId)
-
-    print('restaurantToEdit', restaurantToEdit)
+def updateRestaurantById (session, restaurantId, newRestaurantName):
+    restaurantToEdit = queryRestaurantById(session, restaurantId)
 
     if restaurantToEdit != []:
         print(' restaurantToEdit != []',  restaurantToEdit != [])

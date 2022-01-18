@@ -4,13 +4,15 @@ import cgi
 from select_all_restaurants import selectAllRestaurants
 from insert_new_restaurant import insertNewRestaurant
 from query_restaurant_by_id import queryRestaurantById, updateRestaurantById
+from createSessionAndConnectToDB import createSessionAndConnectToDB
 
+session = createSessionAndConnectToDB()
 class webServerHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         try:
             if self.path.endswith("/restaurants"):
-                allRestautants = selectAllRestaurants()
+                allRestautants = selectAllRestaurants(session)
 
                 output = ""
                 output += "<html><body>"
@@ -53,7 +55,7 @@ class webServerHandler(BaseHTTPRequestHandler):
 
             if self.path.endswith("/edit"):
                 restaurantIDPath = self.path.split("/")[2]
-                restaurantToEdit = queryRestaurantById(restaurantIDPath)
+                restaurantToEdit = queryRestaurantById(session, restaurantIDPath)
                 self.send_response(200)
                 self.send_header('Content-type', 'text/html')
                 self.end_headers()
@@ -67,7 +69,7 @@ class webServerHandler(BaseHTTPRequestHandler):
                 output += "</form>"
                 output += "</body></html>"
                 self.wfile.write(output)
-                print output
+                # print output
                 # return
 
             if self.path.endswith("/hola"):
@@ -80,7 +82,7 @@ class webServerHandler(BaseHTTPRequestHandler):
                 output += '''<form method='POST' enctype='multipart/form-data' action='/hello'><h2>What would you like me to say?</h2><input name="message" type="text" ><input type="submit" value="Submit"> </form>'''
                 output += "</body></html>"
                 self.wfile.write(output)
-                print output
+                # print output
                 return
 
         except IOError:
@@ -96,7 +98,7 @@ class webServerHandler(BaseHTTPRequestHandler):
                         fields = cgi.parse_multipart(self.rfile, pdict)
                         messagecontent = fields.get('restaurantName')
 
-                        insertNewRestaurant(messagecontent[0])
+                        insertNewRestaurant(session, messagecontent[0])
                     
                         self.send_response(301)
                         self.send_header('Content-type', 'text/html')
@@ -104,20 +106,15 @@ class webServerHandler(BaseHTTPRequestHandler):
                         self.end_headers()
 
                 if self.path.endswith("/edit"):
-                    print 'llego aqui!'
                     ctype, pdict = cgi.parse_header(
                         self.headers.getheader('content-type'))
                     if ctype == 'multipart/form-data':
                         fields = cgi.parse_multipart(self.rfile, pdict)
                         messagecontent = fields.get('restaurantName')
                         
-                        print ('messagecontent', messagecontent)
-
                         restaurantIDPath = self.path.split("/")[2]
-                        print ('restaurantIDPath', restaurantIDPath)
 
-
-                        updateRestaurantById(restaurantIDPath, messagecontent[0])
+                        updateRestaurantById(session, restaurantIDPath, messagecontent[0])
                     
                         self.send_response(301)
                         self.send_header('Content-type', 'text/html')
@@ -139,7 +136,7 @@ class webServerHandler(BaseHTTPRequestHandler):
                 output += '''<form method='POST' enctype='multipart/form-data' action='/hello'><h2>What would you like me to say?</h2><input name="message" type="text" ><input type="submit" value="Submit"> </form>'''
                 output += "</body></html>"
                 self.wfile.write(output)
-                print output
+                # print output
             except:
                 pass
 
@@ -147,7 +144,7 @@ class webServerHandler(BaseHTTPRequestHandler):
 def main():
     try:
         port = 8080
-        server = HTTPServer(('localhost', port), webServerHandler)
+        server = HTTPServer(('', port), webServerHandler)
         print "Web Server running on port %s" % port
         server.serve_forever()
     except KeyboardInterrupt:
